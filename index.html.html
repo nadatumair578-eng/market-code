@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE MARKET CODE</title>
+
+<style>
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
+background: radial-gradient(circle at top, #0a0f14, #05070a);
+color:#eaeaea;
+}
+
+/* TICKER */
+.ticker{
+white-space:nowrap;
+overflow:hidden;
+background:linear-gradient(90deg,#0ea5e9,#22c55e,#0ea5e9);
+padding:10px 0;
+font-weight:600;
+font-size:13px;
+}
+.ticker span{
+display:inline-block;
+padding-left:100%;
+animation:scroll 18s linear infinite;
+}
+@keyframes scroll{
+0%{transform:translateX(0);}
+100%{transform:translateX(-100%);}
+}
+
+/* PAGES */
+.page{
+display:none;
+padding:18px;
+padding-bottom:100px;
+}
+.active{display:block;}
+
+/* 💎 BRAND HEADER */
+.brand{
+text-align:center;
+font-size:36px;
+font-weight:800;
+letter-spacing:3px;
+margin-top:18px;
+background:linear-gradient(90deg,#38bdf8,#22c55e,#0ea5e9);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+text-shadow:0 0 25px rgba(56,189,248,0.15);
+}
+
+.slogan{
+font-size:13px;
+margin-top:6px;
+letter-spacing:2px;
+font-weight:400;
+color:rgba(255,255,255,0.6);
+font-family:"Segoe UI", Arial;
+}
+
+/* CARDS */
+.card{
+background:rgba(255,255,255,0.04);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:16px;
+padding:14px;
+margin:12px 0;
+backdrop-filter: blur(14px);
+box-shadow:0 10px 30px rgba(0,0,0,0.35);
+}
+
+/* 📊 TRACKER BUBBLES */
+.tracker-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:12px;
+margin-top:10px;
+}
+
+.tracker{
+background:rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.08);
+border-radius:16px;
+padding:14px;
+backdrop-filter: blur(16px);
+box-shadow:0 8px 25px rgba(0,0,0,0.3);
+transition:0.2s;
+}
+
+.tracker:hover{
+transform:translateY(-2px);
+border-color:rgba(56,189,248,0.3);
+}
+
+.tracker h3{
+margin:0;
+font-size:11px;
+color:#9ca3af;
+font-weight:500;
+letter-spacing:1px;
+}
+
+.tracker p{
+margin:6px 0 0;
+font-size:18px;
+font-weight:700;
+}
+
+/* BUTTONS */
+.btn{
+width:100%;
+padding:12px;
+margin:6px 0;
+border-radius:12px;
+border:1px solid rgba(56,189,248,0.3);
+background:linear-gradient(135deg, rgba(56,189,248,0.15), rgba(34,197,94,0.12));
+color:#eaeaea;
+font-weight:600;
+}
+
+/* TOPIC */
+.topic{
+padding:14px;
+margin:10px 0;
+border-radius:14px;
+background:rgba(255,255,255,0.03);
+border:1px solid rgba(255,255,255,0.06);
+cursor:pointer;
+font-weight:600;
+}
+
+/* SUBTOPIC */
+.subtopic{
+display:none;
+padding:10px 12px;
+margin-left:10px;
+border-left:2px solid rgba(34,197,94,0.4);
+color:#cbd5e1;
+font-size:13px;
+line-height:1.5;
+}
+
+/* NAV */
+.nav{
+position:fixed;
+bottom:0;
+left:0;
+right:0;
+height:70px;
+background:rgba(10,12,16,0.85);
+backdrop-filter: blur(12px);
+display:flex;
+justify-content:space-around;
+align-items:center;
+border-top:1px solid rgba(255,255,255,0.08);
+}
+
+.nav button{
+background:none;
+border:none;
+color:#9ca3af;
+font-size:11px;
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:4px;
+transition:0.2s;
+}
+
+.nav button.active{
+color:#38bdf8;
+transform:scale(1.05);
+}
+</style>
+</head>
+
+<body>
+
+<div class="ticker">
+<span>
+EURUSD • GBPUSD • USDJPY • XAUUSD • NAS100 • US30 • EURUSD • GBPUSD • USDJPY • XAUUSD • NAS100 • US30 •
+</span>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="page active">
+
+<div class="brand">
+THE MARKET CODE
+<div class="slogan">Three traders. One Goal.</div>
+</div>
+
+<div class="card">
+<p>“Discipline creates consistency. Consistency creates capital.”</p>
+<p>“The market doesn’t reward emotion.”</p>
+</div>
+
+<div class="tracker-grid">
+<div class="tracker">
+<h3>IN PROGRESS</h3>
+<p id="progressTopic">None</p>
+</div>
+
+<div class="tracker">
+<h3>COMPLETED</h3>
+<p id="completed">0</p>
+</div>
+
+<div class="tracker">
+<h3>SESSIONS</h3>
+<p id="sessions">0</p>
+</div>
+
+<div class="tracker">
+<h3>LEVEL</h3>
+<p id="level">Novice</p>
+</div>
+</div>
+
+</div>
+
+<!-- KNOWLEDGE MAP -->
+<div id="map" class="page">
+<h2>Knowledge Map</h2>
+<div id="topics"></div>
+</div>
+
+<!-- JOURNAL -->
+<div id="journal" class="page">
+<h2>Trade Journal</h2>
+
+<div class="card">
+<button class="btn" onclick="setProgress()">Set In Progress Topic</button>
+<button class="btn" onclick="completeTopic()">Mark Topic Completed</button>
+<button class="btn" onclick="logSession()">Log Session</button>
+</div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+
+<button onclick="show('dashboard')">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+<path d="M3 12l9-9 9 9"></path>
+<path d="M9 21V9h6v12"></path>
+</svg>
+Home
+</button>
+
+<button onclick="show('map')">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+<circle cx="12" cy="12" r="10"></circle>
+<path d="M2 12h20"></path>
+<path d="M12 2a15 15 0 0 1 0 20"></path>
+</svg>
+Map
+</button>
+
+<button onclick="show('journal')">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+<path d="M4 19h16"></path>
+<path d="M6 17V5h12v12"></path>
+</svg>
+Journal
+</button>
+
+</div>
+
+<script>
+
+/* DATA */
+const data = {
+ Foundations:["What is Forex","Market Participants","Sessions","Currency Types","Pairs","Pips","Lots","Spread","Margin","Leverage","Swap","Liquidity","Volatility","Correlations"],
+ "Market Structure":["Trends","Ranges","BOS","CHOCH","Swing Highs","Swing Lows","Internal Structure","External Structure","Premium & Discount","Equilibrium"],
+ "Price Action":["Candlesticks","Engulfing","Pin Bars","Rejections","Continuations","Pullbacks","Breakouts","Fakeouts","Compression","Expansion"],
+ Strategies:["Supply & Demand","Support & Resistance","Smart Money Concepts","Liquidity Concepts","Order Blocks","Fair Value Gaps","Risk Management","Trading Psychology","Trading Plans","Backtesting","Fundamental Analysis","Economic News","Scalping","Day Trading","Swing Trading","Trade Management"],
+ Indicators:["Fibonacci","Moving Averages","RSI","MACD","Bollinger Bands","ATR","VWAP"]
+};
+
+/* STORAGE */
+let completed = +localStorage.getItem("completed") || 0;
+let sessions = +localStorage.getItem("sessions") || 0;
+let progress = localStorage.getItem("progress") || "None";
+
+function save(){
+localStorage.setItem("completed",completed);
+localStorage.setItem("sessions",sessions);
+localStorage.setItem("progress",progress);
+update();
+}
+
+/* LEVEL */
+function level(n){
+if(n>=40) return "Master";
+if(n>=20) return "Expert";
+if(n>=10) return "Intermediate";
+if(n>=5) return "Adept";
+return "Novice";
+}
+
+/* UPDATE */
+function update(){
+document.getElementById("completed").innerText = completed;
+document.getElementById("sessions").innerText = sessions;
+document.getElementById("progressTopic").innerText = progress;
+document.getElementById("level").innerText = level(completed);
+}
+
+/* NAV */
+function show(id){
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+}
+
+/* ACTIONS */
+function setProgress(){
+let all = Object.values(data).flat();
+let choice = prompt("Pick topic:\n" + all.join(", "));
+if(choice){ progress = choice; save(); }
+}
+
+function completeTopic(){
+completed++; save();
+}
+
+function logSession(){
+sessions++; save();
+}
+
+/* KNOWLEDGE MAP */
+function build(){
+let wrap = document.getElementById("topics");
+
+Object.keys(data).forEach(main=>{
+let block = document.createElement("div");
+
+let header = document.createElement("div");
+header.className="topic";
+header.innerText = main;
+
+let container = document.createElement("div");
+
+data[main].forEach(sub=>{
+let el = document.createElement("div");
+el.className="subtopic";
+el.innerHTML = "• " + sub;
+container.appendChild(el);
+});
+
+header.onclick = ()=>{
+container.querySelectorAll(".subtopic").forEach(x=>{
+x.style.display = (x.style.display==="block")?"none":"block";
+});
+};
+
+block.appendChild(header);
+block.appendChild(container);
+wrap.appendChild(block);
+});
+}
+
+build();
+update();
+
+</script>
+
+</body>
+</html>
