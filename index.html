@@ -2,12 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>THE MARKET CODE</title>
 
 <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
 body{
 margin:0;
+padding: 0;
+overflow-x: hidden;
+overflow-y: auto;
+width: 100%;
+min-height: 100vh;
 font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
 color:#eaeaea;
 overflow-x:hidden;
@@ -151,6 +163,22 @@ padding:14px;
 margin:12px 0;
 backdrop-filter: blur(14px);
 box-shadow:0 10px 30px rgba(0,0,0,0.35);
+}
+
+.price-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+  font-size:14px;
+  color:#cbd5e1;
+}
+
+.price-grid div{
+  background:rgba(255,255,255,0.03);
+  padding:10px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,0.06);
 }
 
 /* 📊 TRACKER BUBBLES */
@@ -319,6 +347,80 @@ transform:scale(4);
 opacity:0;
 }
 }
+
+.lesson-link{
+display:block;
+margin-top:8px;
+margin-left:20px;
+
+color:#38bdf8;
+text-decoration:none;
+font-size:13px;
+font-weight:600;
+
+transition:0.2s;
+}
+
+.lesson-link:hover{
+color:#22c55e;
+transform:translateX(4px);
+}
+
+.modal{
+display:none;
+
+position:fixed;
+inset:0;
+
+background:rgba(0,0,0,.65);
+
+backdrop-filter:blur(8px);
+
+justify-content:center;
+align-items:center;
+
+z-index:999;
+}
+
+.modal-content{
+width:85%;
+max-height:70vh;
+
+overflow-y:auto;
+
+padding:16px;
+
+border-radius:18px;
+
+background:rgba(15,18,24,.95);
+
+border:1px solid rgba(56,189,248,.25);
+
+box-shadow:0 0 40px rgba(0,0,0,.5);
+}
+
+.topic-option{
+padding:12px;
+margin:8px 0;
+
+border-radius:12px;
+
+background:rgba(255,255,255,.03);
+
+border:1px solid rgba(255,255,255,.06);
+
+cursor:pointer;
+
+transition:.2s;
+}
+
+.topic-option:active{
+transform:scale(.98);
+}
+
+.topic-option:hover{
+border-color:rgba(56,189,248,.3);
+}
 </style>
 </head>
 
@@ -363,6 +465,20 @@ THE MARKET CODE
 <h3>LEVEL</h3>
 <p id="level">Novice</p>
 </div>
+
+<div class="card" id="livePrices">
+  <h3>Live Market Prices</h3>
+
+  <div class="price-grid">
+    <div>EURUSD: <span id="eurusd">--</span></div>
+    <div>GBPUSD: <span id="gbpusd">--</span></div>
+    <div>USDJPY: <span id="usdjpy">--</span></div>
+    <div>XAUUSD: <span id="xauusd">--</span></div>
+    <div>NAS100: <span id="nas100">--</span></div>
+    <div>US30: <span id="us30">--</span></div>
+  </div>
+</div>
+
 </div>
 
 </div>
@@ -382,7 +498,28 @@ THE MARKET CODE
 <button class="btn" onclick="completeTopic()">Mark Topic Completed</button>
 <button class="btn" onclick="logSession()">Log Session</button>
 </div>
+<div class="card">
+
+  <h3>Session Notes</h3>
+
+  <textarea id="sessionNotes"
+style="
+width:100%;
+box-sizing:border-box;
+height:120px;
+border-radius:10px;
+padding:10px;
+background:rgba(255,255,255,0.05);
+color:white;
+border:1px solid rgba(255,255,255,0.1);
+resize:none;
+"></textarea>
+
+  <button class="btn" onclick="saveNotes()">Save Notes</button>
+
 </div>
+</div>
+
 
 <!-- NAV -->
 <div class="nav">
@@ -423,6 +560,131 @@ const data = {
  "Price Action":["Candlesticks","Engulfing","Pin Bars","Rejections","Continuations","Pullbacks","Breakouts","Fakeouts","Compression","Expansion"],
  Strategies:["Supply & Demand","Support & Resistance","Smart Money Concepts","Liquidity Concepts","Order Blocks","Fair Value Gaps","Risk Management","Trading Psychology","Trading Plans","Backtesting","Fundamental Analysis","Economic News","Scalping","Day Trading","Swing Trading","Trade Management"],
  Indicators:["Fibonacci","Moving Averages","RSI","MACD","Bollinger Bands","ATR","VWAP"]
+};
+const resources = {
+
+"What is Forex":"https://www.babypips.com/learn/forex/what-is-forex",
+
+"Market Participants":"https://www.babypips.com/learn/forex/who-trades-forex",
+
+"Sessions":"https://www.babypips.com/learn/forex/forex-trading-sessions",
+
+"Currency Types":"https://www.investopedia.com/terms/c/currencypair.asp",
+
+"Pairs":"https://www.babypips.com/learn/forex/buying-selling-currency-pairs",
+
+"Pips":"https://www.babypips.com/learn/forex/pips-and-pipettes",
+
+"Lots":"https://www.babypips.com/learn/forex/lots-leverage-and-profit-and-loss",
+
+"Spread":"https://www.investopedia.com/terms/s/spread.asp",
+
+"Margin":"https://www.babypips.com/learn/forex/what-is-margin",
+
+"Leverage":"https://www.investopedia.com/terms/l/leverage.asp",
+
+"Swap":"https://www.investopedia.com/terms/s/swap.asp",
+
+"Liquidity":"https://www.investopedia.com/terms/l/liquidity.asp",
+
+"Volatility":"https://www.investopedia.com/terms/v/volatility.asp",
+
+"Correlations":"https://www.investopedia.com/terms/c/correlation.asp",
+
+"Trends":"https://www.investopedia.com/articles/active-trading/041814/four-most-commonlyused-indicators-trend-trading.asp",
+
+"Ranges":"https://www.investopedia.com/terms/t/tradingrange.asp",
+
+"BOS":"https://www.tradingview.com/ideas/smartmoneyconcepts/",
+
+"CHOCH":"https://www.tradingview.com/ideas/smartmoneyconcepts/",
+
+"Swing Highs":"https://www.investopedia.com/terms/s/swinghigh.asp",
+
+"Swing Lows":"https://www.investopedia.com/terms/s/swinglow.asp",
+
+"Internal Structure":"https://www.tradingview.com/ideas/marketstructure/",
+
+"External Structure":"https://www.tradingview.com/ideas/marketstructure/",
+
+"Premium & Discount":"https://www.tradingview.com/ideas/smartmoneyconcepts/",
+
+"Equilibrium":"https://www.tradingview.com/ideas/smartmoneyconcepts/",
+
+"Candlesticks":"https://www.investopedia.com/terms/c/candlestick.asp",
+
+"Engulfing":"https://www.investopedia.com/terms/e/engulfingpattern.asp",
+
+"Pin Bars":"https://www.investopedia.com/terms/p/pinbar.asp",
+
+"Rejections":"https://www.investopedia.com/terms/s/support.asp",
+
+"Continuations":"https://www.investopedia.com/terms/t/trend.asp",
+
+"Pullbacks":"https://www.investopedia.com/terms/r/retracement.asp",
+
+"Breakouts":"https://www.investopedia.com/terms/b/breakout.asp",
+
+"Fakeouts":"https://www.investopedia.com/terms/b/breakout.asp",
+
+"Compression":"https://www.investopedia.com/terms/v/volatility.asp",
+
+"Expansion":"https://www.investopedia.com/terms/v/volatility.asp",
+
+"Supply & Demand":"https://www.investopedia.com/terms/s/supply-demand.asp",
+
+"Support & Resistance":"https://www.investopedia.com/terms/s/supportandresistance.asp",
+
+"Smart Money Concepts":"https://www.investopedia.com/terms/f/forex.asp",
+
+"Liquidity Concepts":"https://www.investopedia.com/terms/l/liquidity.asp",
+
+"Order Blocks":"https://www.investopedia.com/terms/o/order.asp",
+
+"Fair Value Gaps":"https://www.investopedia.com/terms/g/gap.asp",
+
+"Risk Management":"https://www.investopedia.com/terms/r/riskmanagement.asp",
+
+"Trading Psychology":"https://www.investopedia.com/terms/t/tradingpsychology.asp",
+
+"Trading Plans":"https://www.investopedia.com/terms/t/tradingplan.asp",
+
+"Backtesting":"https://www.investopedia.com/terms/b/backtesting.asp",
+
+"Fundamental Analysis":"https://www.investopedia.com/terms/f/fundamentalanalysis.asp",
+
+"Economic News":"https://www.investopedia.com/terms/e/economicindicator.asp",
+
+"Scalping":"https://www.investopedia.com/terms/s/scalping.asp",
+
+"Day Trading":"https://www.investopedia.com/terms/d/daytrader.asp",
+
+"Swing Trading":"https://www.investopedia.com/terms/s/swingtrading.asp",
+
+"Trade Management":"https://www.investopedia.com/terms/t/trade.asp",
+
+"Advanced Execution":"https://www.investopedia.com/terms/e/execution.asp",
+
+"Fibonacci":"https://www.investopedia.com/terms/f/fibonacciretracement.asp",
+
+"Moving Averages":"https://www.investopedia.com/terms/m/movingaverage.asp",
+
+"RSI":"https://www.investopedia.com/terms/r/rsi.asp",
+
+"MACD":"https://www.investopedia.com/terms/m/macd.asp",
+
+"Bollinger Bands":"https://www.investopedia.com/terms/b/bollingerbands.asp",
+
+"ATR":"https://www.investopedia.com/terms/a/atr.asp",
+
+"VWAP":"https://www.investopedia.com/terms/v/vwap.asp",
+
+"Support & Resistance (Indicator Use)":"https://www.investopedia.com/terms/s/supportandresistance.asp",
+
+"Volume":"https://www.investopedia.com/terms/v/volume.asp",
+
+"Stochastic":"https://www.investopedia.com/terms/s/stochasticoscillator.asp"
+
 };
 
 /* STORAGE */
@@ -478,9 +740,47 @@ document
 
 /* ACTIONS */
 function setProgress(){
-let all = Object.values(data).flat();
-let choice = prompt("Pick topic:\n" + all.join(", "));
-if(choice){ progress = choice; save(); }
+
+const modal =
+document.getElementById("topicModal");
+
+const list =
+document.getElementById("topicList");
+
+list.innerHTML = "";
+
+Object.values(data)
+.flat()
+.forEach(topic=>{
+
+const item =
+document.createElement("div");
+
+item.className = "topic-option";
+
+item.innerText = topic;
+
+item.onclick = ()=>{
+
+progress = topic;
+
+save();
+
+closeModal();
+
+};
+
+list.appendChild(item);
+
+});
+
+modal.style.display = "flex";
+
+}
+
+function closeModal(){
+document.getElementById("topicModal")
+.style.display = "none";
 }
 
 function completeTopic(){
@@ -505,10 +805,23 @@ header.innerText = main;
 let container = document.createElement("div");
 
 data[main].forEach(sub=>{
+
 let el = document.createElement("div");
-el.className="subtopic";
+el.className = "subtopic";
+
 el.innerHTML = "• " + sub;
+
+if(resources[sub]){
+el.innerHTML +=
+`<a class="lesson-link"
+href="${resources[sub]}"
+target="_blank">
+Open Lesson →
+</a>`;
+}
+
 container.appendChild(el);
+
 });
 
 header.onclick = ()=>{
@@ -547,7 +860,67 @@ ripple.remove();
 
 });
 
+function saveNotes(){
+  const notes = document.getElementById("sessionNotes").value;
+  localStorage.setItem("sessionNotes", notes);
+}
+
+// load immediately when script runs
+const savedNotes = localStorage.getItem("sessionNotes");
+if(savedNotes){
+  document.addEventListener("DOMContentLoaded", ()=>{
+    document.getElementById("sessionNotes").value = savedNotes;
+  });
+}
+const notesBox = document.getElementById("sessionNotes");
+
+notesBox.addEventListener("input", function () {
+  this.style.height = "120px";
+  this.style.height = (this.scrollHeight) + "px";
+});
+
+async function fetchPrices(){
+
+  try{
+    // simple free API (no key needed for demo style pricing)
+    const res = await fetch("https://api.exchangerate.host/latest?base=USD");
+    const data = await res.json();
+
+    // FX approximations (simple but works for UI demo)
+    document.getElementById("eurusd").innerText = (1 / data.rates.EUR).toFixed(5);
+    document.getElementById("usdjpy").innerText = data.rates.JPY.toFixed(3);
+    document.getElementById("gbpusd").innerText = (1 / data.rates.GBP).toFixed(5);
+
+    // placeholders for non-FX (we simulate for now)
+    document.getElementById("xauusd").innerText = (2000 + Math.random()*20).toFixed(2);
+    document.getElementById("nas100").innerText = (18000 + Math.random()*100).toFixed(2);
+    document.getElementById("us30").innerText = (35000 + Math.random()*120).toFixed(2);
+
+  } catch(e){
+    console.log("price error", e);
+  }
+}
+
+fetchPrices();
+setInterval(fetchPrices, 5000);
+
 </script>
+
+<div id="topicModal" class="modal">
+
+<div class="modal-content">
+
+<h3>Select Topic</h3>
+
+<div id="topicList"></div>
+
+<button class="btn" onclick="closeModal()">
+Cancel
+</button>
+
+</div>
+
+</div>
 
 </body>
 </html>
