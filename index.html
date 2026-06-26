@@ -421,6 +421,34 @@ transform:scale(.98);
 .topic-option:hover{
 border-color:rgba(56,189,248,.3);
 }
+
+.session-card{
+margin-top:14px;
+padding:16px;
+border-radius:16px;
+background:rgba(255,255,255,.04);
+border:1px solid rgba(255,255,255,.08);
+backdrop-filter:blur(14px);
+box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+.session-title{
+font-size:13px;
+letter-spacing:2px;
+color:#9ca3af;
+margin-bottom:8px;
+}
+
+.session-name{
+font-size:24px;
+font-weight:700;
+}
+
+.session-time{
+margin-top:6px;
+font-size:14px;
+color:#d1d5db;
+}
 </style>
 </head>
 
@@ -477,6 +505,22 @@ THE MARKET CODE
     <div>NAS100: <span id="nas100">--</span></div>
     <div>US30: <span id="us30">--</span></div>
   </div>
+</div>
+
+<div class="session-card">
+
+<div class="session-title">
+CURRENT MARKET SESSION
+</div>
+
+<div id="sessionName" class="session-name">
+Loading...
+</div>
+
+<div id="sessionTime" class="session-time">
+Checking...
+</div>
+
 </div>
 
 </div>
@@ -903,6 +947,130 @@ async function fetchPrices(){
 
 fetchPrices();
 setInterval(fetchPrices, 5000);
+
+function updateSession(){
+
+const now = new Date();
+
+const utc =
+now.getUTCHours()*60 +
+now.getUTCMinutes();
+
+let name="";
+let colour="";
+let start=0;
+let end=0;
+let extra="";
+
+// London + New York overlap
+if(utc>=780 && utc<960){
+
+name="🟢🔴 London + New York";
+colour="#38bdf8";
+
+const openFor=utc-780;
+const closes=960-utc;
+
+document.getElementById("sessionName").innerText=name;
+document.getElementById("sessionName").style.color=colour;
+
+document.getElementById("sessionTime").innerHTML=
+"🔥 Highest Liquidity<br><br>"+
+"Overlap for <b>"+format(openFor)+"</b><br>"+
+"Ends in <b>"+format(closes)+"</b><br><br>"+
+"<small>⚡ London and New York are both open. This is usually the busiest period of the trading day.</small>";
+
+return;
+}
+
+// Sydney
+if(utc>=1320 || utc<420){
+
+name="🟡 Sydney Session";
+colour="#fbbf24";
+
+if(utc>=1320){
+start=1320;
+end=1860;
+}else{
+start=-120;
+end=420;
+}
+
+}
+
+// Tokyo
+else if(utc<540){
+
+name="🔵 Tokyo Session";
+colour="#38bdf8";
+
+start=0;
+end=540;
+
+}
+
+// London
+else if(utc<960){
+
+name="🟢 London Session";
+colour="#22c55e";
+
+start=420;
+end=960;
+
+}
+
+// New York
+else{
+
+name="🔴 New York Session";
+colour="#ef4444";
+
+start=780;
+end=1320;
+
+}
+
+const openFor=utc-start;
+const closes=end-utc;
+
+document.getElementById("sessionName").innerText=name;
+document.getElementById("sessionName").style.color=colour;
+
+let tip="";
+
+if(name.includes("Sydney")){
+tip="😴 Lower liquidity. Good time for planning and analysis.";
+}
+else if(name.includes("Tokyo")){
+tip="🌏 Asian session active. JPY pairs often see increased movement.";
+}
+else if(name.includes("London")){
+tip="📈 Strong trends often develop as European markets open.";
+}
+else if(name.includes("New York")){
+tip="🇺🇸 US news can increase volatility. Watch the economic calendar.";
+}
+
+document.getElementById("sessionTime").innerHTML=
+"Open for <b>"+format(openFor)+"</b><br>"+
+"Closes in <b>"+format(closes)+"</b><br><br>"+
+"<small>"+tip+"</small>";
+
+}
+
+function format(mins){
+
+const h=Math.floor(mins/60);
+const m=mins%60;
+
+return h+"h "+m+"m";
+
+}
+
+updateSession();
+setInterval(updateSession,60000);
 
 </script>
 
